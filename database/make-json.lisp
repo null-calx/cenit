@@ -11,22 +11,24 @@
 
 (defparameter *tables* (make-hash-table :test #'equal))
 
-(defvar *output-pathname* (probe-file "../src/lib/server/db-structure.json"))
+(defparameter *input-pathname* "db-structure.sexp")
+
+(defparameter *output-pathname* "db-structure.json")
 
 (defun as-keyword (symbol)
   (intern (string symbol) :keyword))
 
-(defun normalize-field-list (fields)
+(defun normalize (fields)
   (loop for field in fields
 	for (name poster) = (if (listp field) field (list field))
 	collect (list name (or poster name))))
 
-(defun field-slots (normal-fields)
-  (loop for (name) in normal-fields
+(defun field->slots (fields)
+  (loop for (name) in fields
 	collect (list name :initarg (as-keyword name))))
 
-(defun field-slot-names (normal-fields)
-  (loop for (name) in normal-fields
+(defun field->names (fields)
+  (loop for (name) in fields
 	collect name))
 
 (defun stringify (symbol-or-string)
@@ -34,92 +36,103 @@
       symbol-or-string
       (string-downcase (string symbol-or-string))))
 
-(defun field-slot-encode-logic (normal-fields)
-  (loop for (name poster) in normal-fields
-	collect	`(if ,name
-		   (encode-object-element ,(stringify poster) ,name))))
-
-(defmacro object-class (name (&rest fields))
+(defmacro def-object-class (name &body fields)
   (let ((obj-var (gensym "OBJ-"))
 	(stream-var (gensym "STREAM-"))
-	(normal-fields (normalize-field-list fields)))
+	(fields (normalize fields)))
     `(progn
        (defclass ,name ()
-	 ,(field-slots normal-fields))
-       (defmethod encode ((,obj-var ,name)
-			  &optional (,stream-var *standard-output*))
+	 ,(field->slots fields))
+       (defmethod encode ((,obj-var ,name) &optional (,stream-var *standard-output*))
 	 (with-output (,stream-var)
 	   (with-object ()
-	     (with-slots ,(field-slot-names normal-fields) ,obj-var
-	       ,@(field-slot-encode-logic normal-fields)
-	       ,obj-var))))
+	     (with-slots ,(field->names fields) ,obj-var
+	       ,@(loop for (name poster) in fields
+		       collect
+		       `(if ,name
+			    (encode-object-element ,(stringify poster) ,name)))))))
        (defmethod slot-unbound (class (instance ,name) slot-name)
-	 (declare (ignorable class))
+	 (declare (ignore class))
 	 (setf (slot-value instance slot-name) nil)))))
 
-(object-class fkey (table column))
-(object-class column (name text type required
-		      (internal "isInternal")
-		      (poster "isPoster")
-		      (pkey "primaryKey")
-		      (fkey "foreignKey")
-		      (read-perm "readPermission")))
-(object-class table (name text url prev next columns hidden
-		     (write-perm "writePermission")))
+(def-object-class fkey
+  table
+  column
+  imports)
 
-(defmacro make-column (name
-		       &key (text name) (type :integer)
-			 pkey fkey read-perm poster required internal)
-  (when fkey
-    (assert (= (length fkey) 2)))
+(def-object-class column
+  name
+  text
+  type
+  (required "isRequired")
+  (internal "isInternal")
+  (import "isImported")
+  (poster "isPoster")
+  (pkey "primaryKey")
+  (fkey "foreignKey")
+  (read-perm "readPermission"))
+
+(def-object-class table
+  name
+  text
+  url
+  prev
+  next
+  columns
+  (hidden "isHidden")
+  (write-perm "writePermission"))
+
+(defun def-fkey (table column &rest imports)
+  (make-instance 'fkey
+		 :table table
+		 :column column
+		 :imports imports))
+
+(defmacro def-column (name &key
+			     (text name) (type :integer)
+			     required internal import poster
+			     pkey fkey read-perm)
   (let ((ins-var (gensym "COLUMN-")))
     `(let ((,ins-var (make-instance 'column
 				    :name ,name
 				    :text ,text
-				    :type ,type)))
-       (with-slots (pkey fkey read-perm poster required internal) ,ins-var
-	 (declare (ignorable pkey fkey read-perm required internal))
-	 ,(if pkey `(setf pkey t))
-	 ,(if required `(setf required t))
-	 ,(if internal `(setf internal t))
-	 ,(if fkey `(setf fkey (make-instance 'fkey
-					      :table ,(first fkey)
-					      :column ,(second fkey))))
-	 ,(if read-perm `(setf read-perm ,read-perm))
-	 ,(if poster `(setf poster ,poster)))
+				    :type ',type
+				    :required ,required
+				    :internal ,internal
+				    :import ,import
+				    :poster ,poster
+				    :pkey ,pkey
+				    :read-perm ,read-perm)))
+       (with-slots (fkey pkey internal) ,ins-var
+	 (declare (ignorable fkey pkey internal))
+	 ,(if fkey `(setf fkey (def-fkey ,@fkey)))
+	 ,(if pkey `(setf internal t)))
        ,ins-var)))
 
-(defun column-list-from-table-body (param-tuple-list)
-  `(list ,@(loop for param-tuple in param-tuple-list
-		 collect `(make-column ,@param-tuple))))
-
-(defun update-fkey-list (cur-table prev-table)
-  (with-slots (prev (cur-name name)) cur-table
-    (with-slots (next (prev-name name)) prev-table
-      ; (unless prev (setf prev nil))
-      ; (unless next (setf next nil))
-      (push prev-name prev)
-      (push cur-name next))))
-
-(defmacro make-table (name (&key (text name) (url name) write-perm hidden)
-		      &body table-body)
+(defmacro def-table (name (&key
+			   (text name) (url name)
+			   hidden write-perm)
+			  &body column-list)
   (let ((ins-var (gensym "TABLE-")))
     `(let ((,ins-var (make-instance 'table
 				    :name ,name
 				    :text ,text
-				    :url ,url)))
-       (with-slots (prev columns write-perm hidden) ,ins-var
-	 (setf columns ,(column-list-from-table-body table-body))
+				    :url ,url
+				    :hidden ,hidden
+				    :write-perm ,write-perm)))
+       (with-slots (columns) ,ins-var
+	 (setf columns (list ,@(loop for column in column-list
+				     collect `(def-column ,@column))))
 	 (loop for column in columns
 	       for fkey = (slot-value column 'fkey)
 	       for prev-name = (if fkey (slot-value fkey 'table))
-	       when fkey
-		 do (let ((prev-table (gethash prev-name *tables*)))
-		      (unless prev-table
-			(error "ERROR: table '~a' not found." prev-name))
-		      (update-fkey-list ,ins-var prev-table)))
-	 (if ,hidden (setf hidden ,hidden))
-	 (if ,write-perm (setf write-perm ,write-perm)))
+	       when prev-name
+		 do (let ((prev-table (or (gethash prev-name *tables*)
+					  (error "ERROR: table '~a' not found." prev-name))))
+		      (with-slots (prev (cur-name name)) ,ins-var
+			(with-slots (next (prev-name name)) prev-table
+			  (push prev-name prev)
+			  (push cur-name next))))))
        (push ,name *table-list*)
        (setf (gethash ,name *tables*) ,ins-var)
        ,ins-var)))
@@ -133,26 +146,15 @@
     (format stream "~%")
     (force-output stream)))
 
-(defun main ()
-  (with-open-file (output *output-pathname*
+(defun print-json-to-file (&optional (pathname *output-pathname*))
+  (with-open-file (output pathname
 			  :direction :output
 			  :if-exists :supersede
 			  :if-does-not-exist :create)
-    (let ((json (with-output-to-string (stream)
-		  (print-json stream))))
-      (format output "~a" json)
-      (format t "// wrote file '~a'~%~%~a" *output-pathname* json))))
+    (print-json output)))
 
-(make-table "rolepermissions" (:text "Roles" :url "roles")
-  ("id" :pkey t)
-  ("role" :type :text :poster t)
-  ("permissions" :type :text-array))
-
-(make-table "users" (:text "Users" :write-perm "admin")
-  ("userid" :pkey t)
-  ("username" :type :text :poster t :required t)
-  ("password" :type :text :read-perm "admin")
-  ("emailid" :type :text :read-perm "admin")
-  ("roles" :type :text-array :internal t))
+(defun main ()
+  (load *input-pathname*)
+  (print-json-to-file))
 
 (main)
