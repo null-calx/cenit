@@ -1,21 +1,29 @@
+// To be used by +page.server.ts and +layout.server.ts files
+
 import { findUser } from './user-management';
+import { urlToTableMap } from './db-structure';
 
-function assertLoggedOut(uuid, redirect) {
-  if (!uuid)
-    return;
+function urlToTable(tableUrl, throwback) {
+  const table = urlToTableMap.get(tableUrl);
 
-  const user = findUser(uuid);
-  if (!user)
-    return;
+  if (!table) throw throwback;
 
-  throw redirect;
+  return table;
 }
 
-function assertLoggedIn(uuid, redirect) {
-  if (uuid)
-    return;
+function assertLoggedOut(uuid, throwback) {
+  if (!uuid) return;
 
-  throw redirect;
+  const result = findUser(uuid);
+  if (!result.success) return;
+
+  throw throwback;
 }
 
-export { assertLoggedIn, assertLoggedOut };
+function assertLoggedIn(uuid, throwback) {
+  if (uuid) return;
+
+  throw throwback;
+}
+
+export { urlToTable, assertLoggedIn, assertLoggedOut };

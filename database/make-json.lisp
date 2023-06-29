@@ -141,7 +141,7 @@
   (let ((*symbol-encoder* #'string)
 	(hashmap (make-hash-table)))
     (setf (gethash "tables" hashmap) *tables*)
-    (setf (gethash "tableNameList" hashmap) *table-list*)
+    (setf (gethash "tableNameList" hashmap) (reverse *table-list*))
     (encode hashmap stream)
     (format stream "~%")
     (force-output stream)))

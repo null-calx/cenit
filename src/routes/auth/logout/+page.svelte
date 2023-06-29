@@ -1,3 +1,5 @@
+<h1>Logout</h1>
+
 <form method='POST'>
-  <button autofocus type='submit'>Logout</button>
+  <button type='submit'>Logout</button>
 </form>

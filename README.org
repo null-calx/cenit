@@ -1,0 +1,24 @@
+* cenit
+
+???
+
+** test
+
+#+BEGIN_SRC sh
+  npm install
+  npm run dev -- --open
+#+END_SRC
+
+** deploy
+
+???
+
+** todos
+
+- request role from admin
+- reset password
+- cookie age
+- import foreign columns
+- pagination
+- filtering
+- dashboard

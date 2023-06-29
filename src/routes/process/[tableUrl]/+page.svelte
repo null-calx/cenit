@@ -1,10 +1,10 @@
 <script lang='ts'>
-  import ULLinks from '$lib/ULLinks.svelte';
+  import PosterHref from '$lib/PosterHref.svelte';
 
   export let data;
 </script>
 
-<h1><a href='/process'>Process</a> / {data.tableName} /</h1>
+<h1><a href='/process'>Process</a> / {data.tableName}</h1>
 
 {#if data.currentUser?.permissions?.includes(data.writePermission)}
   <p>
@@ -12,4 +12,4 @@
   </p>
 {/if}
 
-<ULLinks suffix='/view' pages={data.pages} />
+<PosterHref pages={data.pages} />

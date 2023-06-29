@@ -3,11 +3,9 @@
   import Footer from './Footer.svelte';
 
   export let data;
-
-  const { currentUser } = data;
 </script>
 
-<Header { currentUser } />
+<Header user={data.currentUser} />
 
 <main>
   <slot />

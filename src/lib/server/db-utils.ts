@@ -1,92 +1,27 @@
-import client from './db-connector.ts';
+// To be used by db-access.ts and user-management.ts
+
+import client from './db-connector';
 import { tableNameList } from './db-structure';
 
-function logQuery(query: string, data: string[]) {
-  console.log(`[+] RUN QUERY:  ${query}`);
-  if (data.length)
-    console.log(`[+] USING DATA: ${JSON.stringify(data)}`);
-  return query;
-}
+async function makeQuery(query, values) {
+  console.log(`[+] query: ${query}`);
+  if (values && values.length)
+    console.log(`[+]  data: ${JSON.stringify(values)}`);
 
-async function makeQuery(query: string, data: string[] = []) {
-  logQuery(query, data);
-  return await client.query(query, data);
-}
-
-function checkTableName(tableName: string) {
-  if (!tableName || !tableNameList.includes(tableName))
-    throw new Error(`Table '${tableName}' not found`);
-}
-
-function findNonInternalColumn(key, columns) {
-  const column = columns.find(column => column.name === key);
-  if (!column)
-    throw new Error(`No column named '${key}'`);
-  if (column.primaryKey || column.internal)
-    throw new Error(`Cannot enter value in primaryKey/internal field '${key}'`);
-  return column;
-}
-
-function genQueryParams(keys, columns) {
-  let param = '', i = 0;
-  for (const key of keys) {
-    const column = findNonInternalColumn(key, columns);
-
-    if (i)
-      param += ', ';
-    param += '$' + (++i);
-    if (column.type === 'TEXT')
-      param += '::text';
+  let results;
+  try {
+    results = await client.query(query, values);
+  } catch (e) {
+    console.error(`[!] ERROR: Database error!`);
+    console.error(e);
+    return null;
   }
-  return param;
+
+  return results;
 }
 
-function formatValue(keys, columns, formData) {
-  const values = [];
-  for (const key of keys) {
-    const column = findNonInternalColumn(key, columns);
-    const value = formData.get(key);
-    if (column.type === 'INTEGER') {
-      values.push(+ value);
-    } else if (column.type === 'TEXT-ARRAY') {
-      values.push(value.split(','));
-    } else {
-      values.push(value);
-    }
-  }
-  return values;
+function checkTableName(tableName) {
+  return !!(tableName && tableNameList.includes(tableName));
 }
 
-function genUpdateParams(keys, columns) {
-  let param = '', i = 0;
-  for (const key of keys) {
-    const column = findNonInternalColumn(key, columns);
-
-    if (i)
-      param += ', ';
-    param += key + ' = $' + (++i);
-    if (column.type === 'TEXT')
-      param += '::text';
-  }
-  return param;
-}
-
-function formatUpdation(keys, columns, formData) {
-  const values = [];
-  for (const key of keys) {
-    const column = findNonInternalColumn(key, columns);
-    const value = formData.get(key);
-    if (column.type === 'INTEGER') {
-      values.push(+ value);
-    } else if (column.type === 'TEXT-ARRAY') {
-      values.push(value.split(','));
-    } else {
-      values.push(value);
-    }
-  }
-  return values;
-}
-
-export { makeQuery, checkTableName,
-	 genQueryParams, formatValue,
-	 genUpdateParams, formatUpdation };
+export { makeQuery, checkTableName };

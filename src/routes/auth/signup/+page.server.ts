@@ -5,8 +5,8 @@ import { assertLoggedOut } from '$lib/server/page-security';
 
 export const load = ({ cookies }) => {
   const uuid = cookies.get('sessionid');
-  assertLoggedOut(uuid, redirect(307, '/'));
-}
+  assertLoggedOut(uuid, redirect(303, '/'));
+};
 
 export const actions = {
   default: (async ({ request, cookies }) => {
@@ -18,10 +18,12 @@ export const actions = {
 
     const signup = await signupUser(username, emailid, password);
 
-    if (!signup.success)
-      return fail(400, { ...signup, username, emailid });
+    if (!signup.success) return fail(400, { ...signup, username, emailid });
 
-    cookies.set('sessionid', signup.uuid, { path: '/' });
+    // finally after all the checks
+
+    cookies.set('sessionid', signup.uuid, { path: '/', secure: false });
+    /// TODO: DO NOT SET SECURE TO FALSE, ONLY FOR TESTING PURPOSES ///
 
     throw redirect(303, '/');
   })

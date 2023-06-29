@@ -1,16 +1,16 @@
 <script lang='ts'>
+  import Message from '$lib/Message.svelte';
+
   export let form;
 </script>
 
 <h1>Login</h1>
 
 <form method='POST'>
-  {#if form?.success === false}
-    <p>{form?.message}</p>
-  {/if}
+  <Message {form} />
   <label>
     Username:
-    <input autofocus type='text' name='username' value={form?.username || ''} />
+    <input type='text' name='username' value={form?.username || ''} />
   </label>
   <label>
     Password:

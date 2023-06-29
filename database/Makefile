@@ -1,7 +1,10 @@
+SYMLINK='../src/lib/server/db-structure.json'
+FILE='db-structure.json'
+
 all: echo
 
-echo: db-structure.json
-	jq . db-structure.json
+echo: $(FILE)
+	jq . $(FILE)
 
-db-structure.json: make-json.lisp db-structure.sexp
+$(FILE): make-json.lisp db-structure.sexp
 	sbcl --noinform --disable-debugger --quit --load make-json.lisp

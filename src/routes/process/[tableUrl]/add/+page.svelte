@@ -1,22 +1,22 @@
 <script lang='ts'>
-  export let form;
+  import Message from '$lib/Message.svelte';
+
   export let data;
+  export let form;
 </script>
 
-<h1><a href='/process'>Process</a> / <a href='..'>{data.tableName}</a> / Add</h1>
+<h1><a href='/process'>Process</a> / <a href='..'>{data.tableName}</a> / add</h1>
 
 <form method='POST'>
-  {#if form?.success === false}
-    <p>{form?.message}</p>
-  {/if}
+  <Message {form} />
   {#each data.columns as column}
-    {#if !column.primaryKey && !column.isInternal}
+    {#if !column.isInternal}
       <label>
 	{column.text}:
-	<input name={column.name} value={form?.[column.name] || ''}/>
+	<input name={column.name} value={form?.[column.name] || ''} />
       </label>
       <br />
     {/if}
   {/each}
-  <button type='submit'>Submit</button>
+  <button type='submit'>Add</button>
 </form>

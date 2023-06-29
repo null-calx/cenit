@@ -1,8 +1,12 @@
 import { error } from '@sveltejs/kit';
 
-import { urlToTable } from '$lib/server/db-structure';
-import { queryItem } from '$lib/server/db-query';
-import { findUser } from '$lib/server/user-management';
+import { tableNameList, tables, tableToPoster } from '$lib/server/db-structure';
+import { urlToTable } from '$lib/server/page-security';
+import { queryItem } from '$lib/server/db-access';
+import { getPermissions } from '$lib/server/user-management';
+
+const tableToUrl = {};
+tableNameList.forEach(tableName => tableToUrl[tableName] = tables[tableName].url);
 
 export const load = (async ({ cookies, params }) => {
   const { id, tableUrl } = params;
@@ -10,12 +14,11 @@ export const load = (async ({ cookies, params }) => {
   const table = urlToTable(tableUrl);
 
   const uuid = cookies.get('sessionid');
-  const permissions = findUser(uuid)?.permissions;
+  const permissions = getPermissions(uuid);
 
-  const rowData = await queryItem(table.name, id, permissions);
+  const results = await queryItem(table.name, id, permissions);
+  if (!results.success) throw new error(404, 'Not found');
+  const { row } = results;
 
-  if (!rowData)
-    throw new error(404, 'Not found');
-  
-  return { rowName: id, rowData, columns: table.columns };
+  return { rowName: row[tableToPoster.get(table.name).name], rowData: row, tableToUrl };
 });

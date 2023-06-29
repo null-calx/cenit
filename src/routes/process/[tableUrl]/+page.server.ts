@@ -1,17 +1,14 @@
-import { redirect, error } from '@sveltejs/kit';
+import { error } from '@sveltejs/kit';
 
-import { urlToTable } from '$lib/server/db-structure';
-import { queryPosterAndHref } from '$lib/server/db-query';
+import { urlToTable } from '$lib/server/page-security';
+import { queryPosterAndHref } from '$lib/server/db-access';
 
 export const load = (async ({ params }) => {
   const { tableUrl } = params;
 
-  const table = urlToTable(tableUrl);
+  const table = urlToTable(tableUrl, error(404, 'Not found.'));
 
-  const tableData = await queryPosterAndHref(table.name);
+  const results = await queryPosterAndHref(table.name);
 
-  if (!tableData)
-    throw redirect(404, 'Not found');
-
-  return { pages: tableData };
+  return { pages: results.rows };
 });

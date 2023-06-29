@@ -1,15 +1,11 @@
 import { error } from '@sveltejs/kit';
 
-import { tableUrlList, urlToTable } from '$lib/server/db-structure';
+import { urlToTable } from '$lib/server/page-security';
 
 export const load = ({ params }) => {
   const { tableUrl } = params;
-  if (!tableUrlList.includes(tableUrl))
-    throw error(404, { message: 'Not found' });
 
-  const table = urlToTable(tableUrl);
+  const table = urlToTable(tableUrl, error(404, { message: 'Not found' }));
 
-  const { writePermission } = table;
-
-  return { tableName: table.text, writePermission };
+  return { tableName: table.text, columns: table.columns, writePermission: table.writePermission };
 };

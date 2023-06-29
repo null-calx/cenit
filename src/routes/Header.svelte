@@ -1,26 +1,27 @@
 <script lang='ts'>
-  import ULLinks from '$lib/ULLinks.svelte';
+  import PosterHref from '$lib/PosterHref.svelte';
 
-  export let currentUser;
+  export let user;
 
   const pages = [
     { poster: 'Home Page', href: '/home' },
     { poster: 'Process', href: '/process' },
-    { poster: 'About Us', href: '/about' },
+    { poster: 'About Us', href: '/about' }
   ];
 
-  if (currentUser) {
-    pages.push({ poster: currentUser.username, href: '/profile' });
+  if (user) {
+    pages.push({ poster: `${user.username} /  ${user.currentRole}`,
+		 href: '/profile' });
     pages.push({ poster: 'Logout', href: '/auth/logout' });
   } else {
     pages.push({ poster: 'Login', href: '/auth/login' });
   }
 </script>
 
-<p>{JSON.stringify(currentUser)}</p>
-
 <header>
-  <ULLinks {pages} />
+  <PosterHref {pages} />
 </header>
+
+<i>{JSON.stringify(user)}</i>
 
 <hr />

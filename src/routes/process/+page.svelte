@@ -1,9 +1,9 @@
 <script lang='ts'>
-  import ULLinks from '$lib/ULLinks.svelte';
+  import PosterHref from '$lib/PosterHref.svelte';
 
   export let data;
 </script>
 
 <h1>Process</h1>
 
-<ULLinks pages={data.pages} />
+<PosterHref pages={data.pages} />

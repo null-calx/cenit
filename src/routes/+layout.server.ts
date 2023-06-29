@@ -4,18 +4,16 @@ export const trailingSlash = 'always';
 
 export const load = ({ cookies }) => {
   const uuid = cookies.get('sessionid');
-  const currentUser = findUser(uuid);
-  if (!currentUser) {
+  const result = findUser(uuid);
+
+  if (!result.success) {
     cookies.delete('sessionid');
-    return { currentUser };
+    return { currentUser: null };
   }
 
-  const { permissions } = currentUser;
+  const { currentUser } = result;
 
-  return {
-    currentUser: {
-      ...currentUser,
-      permissions: [ ...permissions ]
-    }
-  };
-}
+  currentUser.permissions = [ ...currentUser.permissions ];
+
+  return { currentUser };
+};

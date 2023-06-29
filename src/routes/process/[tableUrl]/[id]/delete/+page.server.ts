@@ -1,33 +1,31 @@
-import { redirect } from '@sveltejs/kit';
+import { error, redirect } from '@sveltejs/kit';
 
-import { urlToTable } from '$lib/server/db-structure';
-import { deleteItem } from '$lib/server/db-mutate';
-import { findUser } from '$lib/server/user-management';
+import { deleteItem } from '$lib/server/db-access';
+import { getPermissions } from '$lib/server/user-management';
+import { urlToTable } from '$lib/server/page-security';
 
 export const load = ({ cookies, params }) => {
   const uuid = cookies.get('sessionid');
-  const permissions = findUser(uuid)?.permissions || new Set();
+  const permissions = getPermissions(uuid);
 
   const { tableUrl } = params;
-  const table = urlToTable(tableUrl);
+  const table = urlToTable(tableUrl, error(404, 'Not found.'));
 
-  if (!permissions.has(table.writePermission))
-    throw redirect(307, '..');
+  if (!permissions.has(table.writePermission)) throw redirect(303, '..');
+
+  return { columns: table.columns };
 };
 
 export const actions = {
-  default: (async ({ cookies, request, params }) => {
-    const { id, tableUrl } = params;
-
-    const table = urlToTable(tableUrl);
-
-    const formData = await request.formData();
-
+  default: (async ({ cookies, params }) => {
     const uuid = cookies.get('sessionid');
-    const permissions = findUser(uuid)?.permissions;
+    const permissions = getPermissions(uuid);
 
-    await deleteItem(table.name, id, permissions);
+    const { tableUrl, id } = params;
+    const table = urlToTable(tableUrl, error(404, 'Not found.'));
 
-    throw redirect(303, '../..');
+    const results = await deleteItem(table.name, id, permissions);
+
+    throw redirect(303, `/process/${tableUrl}/`);
   })
 };

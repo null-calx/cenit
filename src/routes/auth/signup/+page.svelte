@@ -1,25 +1,25 @@
 <script lang='ts'>
+  import Message from '$lib/Message.svelte';
+
   export let form;
 </script>
 
 <h1>Signup</h1>
 
 <form method='POST'>
-  {#if form?.success === false}
-    <p>{form?.message}</p>
-  {/if}
+  <Message {form} />
   <label>
     Username:
-    <input autofocus type='text' name='username' value={form?.username || ''}/>
+    <input type='text' name='username' value={form?.username || ''} />
   </label>
   <label>
-    Email:
-    <input type='text' name='emailid' value={form?.emailid || ''}/>
+    Email ID:
+    <input type='text' name='emailid' value={form?.emailid || ''} />
   </label>
   <label>
     Password:
     <input type='password' name='password' />
   </label>
-  <button type='submit'>SignUp</button>
+  <button type='submit'>Signup</button>
   <a href='/auth/login'>Login instead</a>
 </form>

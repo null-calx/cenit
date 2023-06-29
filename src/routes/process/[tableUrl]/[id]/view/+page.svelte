@@ -1,5 +1,9 @@
 <script lang='ts'>
+  import Slot from './Slot.svelte';
+
   export let data;
+
+  const { tableToUrl } = data;
 </script>
 
 <h1><a href='/process'>Process</a> / <a href='../..'>{data.tableName}</a> / <a href='..'>{data.rowName}</a> / view</h1>
@@ -12,16 +16,7 @@
 {/if}
 
 {#each data.columns as column}
-  <div>
-    {#if !column.readPermission || data?.currentUser?.permissions.includes(column.readPermission)}
-      <h2>{column.text}</h2>
-      {#if column.foreignKey}
-	<a href={`/process/${column.foreignKey.table}/${data.rowData[column.name]}`}>
-	  <p>{data.rowData[column.name]}</p>
-	</a>
-      {:else}
-	<p>{data.rowData[column.name]}</p>
-      {/if}
-    {/if}
-  </div>
+  {#if !column.readPermission || data.currentUser?.permissions.includes(column.readPermission)}
+    <Slot column={column} value={data.rowData[column.name]} {tableToUrl}/>
+  {/if}
 {/each}

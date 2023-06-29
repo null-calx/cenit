@@ -1,12 +1,12 @@
 import { tables, tableNameList } from '$lib/server/db-structure';
 
-const pages = {
+const data = {
   pages: tableNameList.map(tableName => ({
     poster: tables[tableName].text,
     href: tables[tableName].url
   }))
 };
 
-export const load = () => pages;
+export const load = () => data;
 
 export const prerender = true;
