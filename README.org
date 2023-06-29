@@ -1,17 +1,23 @@
 * cenit
 
-???
+Simple app for viewing and manuipulating relational databases.
+
+** setup
+
+Describe your database in the file `database/db-structure.sexp` and run `make` in the same `database` directory.
 
 ** test
 
-#+BEGIN_SRC sh
+#+begin_src sh
   npm install
   npm run dev -- --open
-#+END_SRC
+#+end_src
 
 ** deploy
 
-???
+#+begin_src sh
+  npm build
+#+end_src
 
 ** todos
 
