@@ -4,11 +4,11 @@
   export let data;
 </script>
 
-<h1><a href='/process'>Process</a> / {data.tableName}</h1>
+<h2 class='content-subhead'><a href='/process'>Process</a> > {data.tableName}</h2>
 
 {#if data.currentUser?.permissions?.includes(data.writePermission)}
   <p>
-    <a href='add'>Add Item</a>
+    <a class='pure-button pure-button-primary' href='add'>Add Item</a>
   </p>
 {/if}
 

@@ -20,5 +20,7 @@ export const load = (async ({ cookies, params }) => {
   if (!results.success) throw new error(404, 'Not found');
   const { row } = results;
 
-  return { rowName: row[tableToPoster.get(table.name).name], rowData: row, tableToUrl };
+  const rowName = row[tableToPoster.get(table.name).name]
+
+  return { rowName, rowData: row, tableToUrl, setTitle: rowName };
 });

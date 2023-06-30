@@ -10,5 +10,5 @@ export const load = (async ({ params }) => {
 
   const results = await queryPosterAndHref(table.name);
 
-  return { pages: results.rows };
+  return { pages: results.rows, setTitle: table.text };
 });

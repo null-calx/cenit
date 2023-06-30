@@ -13,7 +13,7 @@ export const load = ({ cookies, params }) => {
 
   if (!permissions.has(table.writePermission)) throw redirect(303, '..');
 
-  return { columns: table.columns };
+  return { columns: table.columns, setTitle: 'Delete in ' + table.text };
 };
 
 export const actions = {
