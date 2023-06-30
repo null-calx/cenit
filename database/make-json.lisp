@@ -11,7 +11,7 @@
 
 (defparameter *tables* (make-hash-table :test #'equal))
 
-(defparameter *input-pathname* "db-structure.sexp")
+(defparameter *input-pathname* "base.sexp")
 
 (defparameter *output-pathname* "db-structure.json")
 
@@ -64,6 +64,7 @@
   name
   text
   type
+  (unique "isUnique")
   (required "isRequired")
   (internal "isInternal")
   (import "isImported")
@@ -90,13 +91,14 @@
 
 (defmacro def-column (name &key
 			     (text name) (type :integer)
-			     required internal import poster
+			     unique required internal import poster
 			     pkey fkey read-perm)
   (let ((ins-var (gensym "COLUMN-")))
     `(let ((,ins-var (make-instance 'column
 				    :name ,name
 				    :text ,text
 				    :type ',type
+				    :unique ,unique
 				    :required ,required
 				    :internal ,internal
 				    :import ,import

@@ -1,0 +1,12 @@
+* Lisp programs for file generation
+
+** Requirements
+
+- ~yason~ lisp package (available on ~quicklisp~)
+  Install ~quicklisp~ from <quicklisp.org> and run ~(ql:quickload :yason)~x
+- ~sbcl~ (or any other lisp implementation)
+- GNU Make (optional)
+
+** Usage
+
+~make~
