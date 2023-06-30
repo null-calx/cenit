@@ -4,7 +4,7 @@
 
 - ~yason~ lisp package (available on ~quicklisp~)
   
-  Install ~quicklisp~ from <quicklisp.org> and run ~(ql:quickload :yason)~
+  Install ~quicklisp~ from [[quicklisp.org]] and run ~(ql:quickload :yason)~
   
 - ~sbcl~ (or any other lisp implementation)
   
