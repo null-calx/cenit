@@ -6,18 +6,20 @@
 
   const { currentUser } = data;
 
-  let currentRole = currentUser?.currentRole;
+  let currentRole = currentUser.currentRole;
 </script>
 
-<h1>Profile</h1>
+<h2 class='content-subhead'>Switch Role</h2>
 
-<form method='POST'>
+<form method='POST' class='pure-form'>
   <Message {form} />
   {#each currentUser.roles as role}
-    <label>
+    <label class='pure-radio'>
       <input type='radio' name='role' value={role} bind:group={currentRole} />
       {role}
     </label>
   {/each}
-  <button type='submit'>Switch Role</button>
+  {#if currentRole !== currentUser.currentRole}
+    <button class='pure-button pure-button-primary' type='submit'>Switch Role</button>
+  {/if}
 </form>

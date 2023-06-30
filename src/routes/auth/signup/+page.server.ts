@@ -6,6 +6,7 @@ import { assertLoggedOut } from '$lib/server/page-security';
 export const load = ({ cookies }) => {
   const uuid = cookies.get('sessionid');
   assertLoggedOut(uuid, redirect(303, '/'));
+  return { setTitle: 'Signup' };
 };
 
 export const actions = {

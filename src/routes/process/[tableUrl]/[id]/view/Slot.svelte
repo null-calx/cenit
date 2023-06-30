@@ -8,8 +8,8 @@
   const rowId = value;
 </script>
 
-<div>
-  <h2>{column.text}</h2>
+<dt>{column.text}</dt>
+<dd>
   {#if column.foreignKey}
     <a href={`/process/${tableUrl}/${rowId}`}>
       <p>{value}</p>
@@ -17,4 +17,4 @@
   {:else}
     <p>{value}</p>
   {/if}
-</div>
+</dd>

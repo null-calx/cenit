@@ -4,7 +4,8 @@ const data = {
   pages: tableNameList.map(tableName => ({
     poster: tables[tableName].text,
     href: tables[tableName].url
-  }))
+  })),
+  setTitle: 'Process'
 };
 
 export const load = () => data;

@@ -5,18 +5,20 @@
   export let form;
 </script>
 
-<h1><a href='/process'>Process</a> / <a href='..'>{data.tableName}</a> / add</h1>
+<h2 class='content-subhead'><a href='/process'>Process</a> / <a href='..'>{data.tableName}</a> / add</h2>
 
-<form method='POST'>
+<form method='POST' class='pure-form pure-form-aligned'>
   <Message {form} />
   {#each data.columns as column}
     {#if !column.isInternal}
-      <label>
-	{column.text}:
-	<input name={column.name} value={form?.[column.name] || ''} />
-      </label>
-      <br />
+      <div class='pure-control-group'>
+	<label for={column.name}>{column.text}:</label>
+	<input type='text' id={column.name} name={column.name}
+	       value={form?.[column.name] || ''} />
+      </div>
     {/if}
   {/each}
-  <button type='submit'>Add</button>
+  <div class='pure-controls'>
+    <button class='pure-button pure-button-primary' type='submit'>Add</button>
+  </div>
 </form>

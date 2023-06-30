@@ -3,5 +3,5 @@
 </script>
 
 {#if form?.success === false}
-  <p>{form?.message}</p>
+  <p class='pure-form-message'>{form?.message}</p>
 {/if}
