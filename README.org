@@ -4,7 +4,7 @@ Simple app for viewing and manuipulating relational databases.
 
 ** setup
 
-Describe your database in the file `database/db-structure.sexp` and run `make` in the same `database` directory.
+Create ~.env~ file with ~USER~, ~HOST~, ~DATABASE~ and ~PORT~ values to connect to your PostgresQL database.
 
 ** test
 
@@ -14,6 +14,8 @@ Describe your database in the file `database/db-structure.sexp` and run `make` i
 #+end_src
 
 ** deploy
+
+Not tested yet.
 
 #+begin_src sh
   npm build

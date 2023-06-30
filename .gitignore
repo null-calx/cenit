@@ -9,5 +9,6 @@ node_modules
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 
+database/db-structure.sql
 database/db-structure.json
 src/lib/server/db-structure.json
