@@ -1,0 +1,3 @@
+[submodule "donco"]
+	path = donco
+	url = https://github.com/null-calx/donco
