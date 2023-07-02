@@ -15,6 +15,7 @@
   (if pkey "uuid default uuid_generate_v4 () primary key"
       (cond ((eq type :integer) "integer")
 	    ((eq type :text) "text")
+	    ((eq type :uuid) "uuid")
 	    ((eq type nil) "integer")
 	    ((listp type)
 	     (cond ((eq (first type) :array)

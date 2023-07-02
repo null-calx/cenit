@@ -49,7 +49,7 @@ const tables = _tables as tablesType;
 const allTableNameList = _tableNameList as tableName[];
 
 const tableNameList = (allTableNameList
-  .filter(tableName => !tables[tableName].hidden));
+  .filter(tableName => !tables[tableName].isHidden));
 
 const tableUrlList = tableNameList.map(tableName => tables[tableName].url);
 
@@ -59,7 +59,7 @@ const tableToPrimaryKey: Map<tableName, columnDesc> = new Map();
 
 const tableToPoster: Map<tableName, columnDesc> = new Map();
 
-tableNameList.forEach(tableName => {
+allTableNameList.forEach(tableName => {
   const table = tables[tableName];
   const primaryKey = table.columns.find(column => column.primaryKey);
   const poster = table.columns.find(column => column.isPoster);

@@ -21,6 +21,44 @@ async function queryPosterAndHref(tableName) {
 }
 
 async function queryItem(tableName, rowId, permissions) {
+  return await queryItemRecursive(tableName, rowId, permissions, null, null, false);
+}
+
+/// TODO: rewrite using SQL JOINS ///
+async function queryItemRecursive(tableName, rowId, permissions, useKey=null, filterColumns=null, usePoster=false) {
+  if (!checkTableName(tableName)) return fail('No such table.');
+
+  const table = tables[tableName];
+  const columnList = (table.columns
+    .filter(column => !column.readPermission || permissions.has(column.readPermission))
+    .map(column => column.name)
+    .filter(columnName => filterColumns?.length ? filterColumns.map(column => column.name).includes(columnName) : true)
+    .join(', '));
+
+  const primaryKey = useKey || tableToPrimaryKey.get(tableName).name;
+
+  const foreignData = {};
+
+  const query = `select ${columnList} from ${tableName} where ${primaryKey} = $1;`;
+  const results = await makeQuery(query, [ rowId ]);
+  if (!results) return fail('Internal error.');
+  if (!results.rows.length) return fail('No such item.');
+
+  for (const column of table.columns) {
+    if (column.foreignKey) {
+      const { table: tableName, column: useKey, imports: filterColumns } = column.foreignKey;
+      const foreign = await queryItemRecursive(tableName, results.rows[0][column.name], permissions, useKey, filterColumns, true);
+      if (foreign.success)
+	Object.assign(foreignData, foreign.row);
+    }
+  }
+
+  // finally after all the checks
+
+  return success({ row: Object.assign(foreignData, results.rows[0]) });
+}
+
+async function queryItemOld(tableName, rowId, permissions) {
   if (!checkTableName(tableName)) return fail('No such table.');
 
   const table = tables[tableName];
@@ -38,7 +76,7 @@ async function queryItem(tableName, rowId, permissions) {
 
   // finally after all the checks
 
-  return success ({ row: results.rows[0] });
+  return success({ row: results.rows[0] });
 }
 
 async function insertData(formData, tableName, permissions) {

@@ -141,7 +141,8 @@ appears on the right side of the page.
 */
 #menu .pure-menu ul,
 #menu .pure-menu .menu-item-divided {
-  border-top: 1px solid #333;
+  /* border-top: 10px solid #333; */
+  /* margin-top: 10px; */
 }
 /*
         Change color of the anchor links on hover/focus.

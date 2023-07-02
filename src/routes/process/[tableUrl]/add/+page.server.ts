@@ -1,10 +1,10 @@
 import { fail, error, redirect } from '@sveltejs/kit';
 
-import { insertData } from '$lib/server/db-access';
+import { queryPosterAndHref, insertData } from '$lib/server/db-access';
 import { getPermissions } from '$lib/server/user-management';
 import { urlToTable } from '$lib/server/page-security';
 
-export const load = ({ cookies, params }) => {
+export const load = (async ({ cookies, params }) => {
   const uuid = cookies.get('sessionid');
   const permissions = getPermissions(uuid);
 
@@ -13,8 +13,20 @@ export const load = ({ cookies, params }) => {
 
   if (!permissions.has(table.writePermission)) throw redirect(303, '..');
 
-  return { columns: table.columns, setTitle: 'Add in ' + table.text };
-};
+  const foreignData = {};
+
+  for (const column of table.columns) {
+    if (column.foreignKey) {
+      const results = await queryPosterAndHref(column.foreignKey.table);
+      if (results.success)
+	foreignData[column.name] = results.rows;
+    }
+  }
+
+  console.log(foreignData);
+
+  return { foreignData, columns: table.columns, setTitle: 'Add in ' + table.text };
+});
 
 export const actions = {
   default: (async ({ cookies, request, params }) => {

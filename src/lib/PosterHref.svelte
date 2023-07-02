@@ -4,8 +4,12 @@
   export let suffix = '';
 </script>
 
-<ul>
-  {#each pages as { poster, href }}
-    <li><a href={prefix + href + suffix}>{poster}</a></li>
-  {/each}
-</ul>
+<div class='pure-menu'>
+  <ul class='pure-menu-list'>
+    {#each pages as { poster, href }}
+      <li class='pure-menu-item'>
+	<a class='pure-menu-link' href={prefix + href + suffix}>{poster}</a>
+      </li>
+    {/each}
+  </ul>
+</div>

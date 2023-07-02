@@ -1,4 +1,5 @@
-import { Client } from 'pg';
+import pkg from 'pg';
+const { Client } = pkg;
 import { USER, HOST, DATABASE, PORT } from '$env/static/private';
 
 const client = new Client({

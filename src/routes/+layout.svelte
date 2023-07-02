@@ -36,6 +36,7 @@
     <div class='header'>
       <h1>WebApp Name</h1>
       <h2>{$page.data.setTitle}</h2>
+      <i>{JSON.stringify(data)}</i>
     </div>
     <div>
     <div class='content'>

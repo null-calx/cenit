@@ -1,4 +1,4 @@
-(def-table "users" (:text "Users" :write-perm "admin")
+(def-table "users" (:text "Users" :hidden t :write-perm "admin")
   ("userid"
    :pkey t)
   ("username"
@@ -19,7 +19,7 @@
    :type (:array :text)
    :internal t))
 
-(def-table "rolepermissions" (:text "Roles" :url "roles")
+(def-table "rolepermissions" (:text "Roles" :hidden t :url "roles")
   ("id"
    :pkey t)
   ("role"
@@ -28,20 +28,29 @@
   ("permissions"
    :type (:array :text)))
 
-(def-table "test1" (:text "Test1" :url "1")
-  ("id"
+(def-table "crops" (:text "Crops" :url "crops" :write-perm "crop-manager")
+  ("cropid"
    :pkey t)
-  ("name"
+  ("cropname"
    :type :text
-   :poster t)
-  ("rest"
-   :type :text))
+   :poster t))
 
-(def-table "test2" (:text "Test2" :url "2")
-  ("id"
+(def-table "dailyharvest" (:text "Daily Harvest" :url "daily-harvest" :write-perm "harvest-manager")
+  ("harvestid"
    :pkey t)
-  ("name"
+  ("harvestname"
    :type :text
    :poster t)
-  ("forid"
-   :fkey ("test1" "id")))
+  ("cropid"
+   :type :uuid
+   :fkey ("crops" "cropid" "cropname")))
+
+(def-table "sorting" (:text "Sorting" :url "sorting" :write-perm "sort-manager")
+  ("sortingid"
+   :pkey t)
+  ("sortname"
+   :type :text
+   :poster t)
+  ("harvestid"
+   :type :uuid
+   :fkey ("dailyharvest" "harvestid" "harvestname")))

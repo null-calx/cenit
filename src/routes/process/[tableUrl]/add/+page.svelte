@@ -13,8 +13,16 @@
     {#if !column.isInternal}
       <div class='pure-control-group'>
 	<label for={column.name}>{column.text}:</label>
-	<input type='text' id={column.name} name={column.name}
-	       value={form?.[column.name] || ''} />
+	{#if column.foreignKey}
+	  <select id={column.name} name={column.name}>
+	    {#each data.foreignData[column.name] as { poster, href }}
+	      <option value={href}>{poster}</option>
+	    {/each}
+	  </select>
+	{:else}
+	  <input type='text' id={column.name} name={column.name}
+		 value={form?.[column.name] || ''} />
+	{/if}
       </div>
     {/if}
   {/each}
